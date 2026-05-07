@@ -1,4 +1,3 @@
-# coding=utf-8
 # Copyright 2020 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,10 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# pylint: skip-file
 """Return training and evaluation/test datasets from config files."""
-from torch.utils.data import Dataset, DataLoader
 import numpy as np
+from torch.utils.data import Dataset, DataLoader
 
 
 def get_data_scaler(config):

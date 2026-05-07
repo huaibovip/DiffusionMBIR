@@ -1,4 +1,3 @@
-# coding=utf-8
 # Copyright 2020 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,13 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# pylint: skip-file
-# pytype: skip-file
 """Various sampling methods."""
 
 import torch
 import numpy as np
 from scipy import integrate
+
 from models import utils as mutils
 
 

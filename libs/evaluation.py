@@ -1,4 +1,3 @@
-# coding=utf-8
 # Copyright 2020 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,8 +14,8 @@
 
 """Utility functions for computing FID/Inception scores."""
 
-import numpy as np
 import six
+import numpy as np
 
 INCEPTION_TFHUB = 'https://tfhub.dev/tensorflow/tfgan/eval/inception/1'
 INCEPTION_OUTPUT = 'logits'

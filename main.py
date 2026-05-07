@@ -1,4 +1,3 @@
-# coding=utf-8
 # Copyright 2020 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,49 +13,66 @@
 # limitations under the License.
 
 """Training and evaluation"""
+import logging
 import os
 from pathlib import Path
 
-from absl import app
-from absl import flags
+from absl import app, flags
 from ml_collections.config_flags import config_flags
-import logging
 
-import run_lib
+from libs import run_lib
 
 FLAGS = flags.FLAGS
 
 config_flags.DEFINE_config_file(
-  "config", None, "Training configuration.", lock_config=True)
-flags.DEFINE_string("workdir", None, "Work directory.")
-flags.DEFINE_enum("mode", None, ["train", "train_regression", "eval"], "Running mode: train, train_regression, or eval")
-flags.DEFINE_string("eval_folder", "eval",
-                    "The folder name for storing evaluation results")
+    "config",
+    default=None,
+    help_string="Training configuration.",
+    lock_config=True,
+)
+flags.DEFINE_string(
+    "workdir",
+    default=None,
+    help="Work directory.",
+)
+flags.DEFINE_enum(
+    "mode",
+    default=None,
+    enum_values=["train", "train_regression", "eval"],
+    help="Running mode: train, train_regression, or eval",
+)
+flags.DEFINE_string(
+    "eval_folder",
+    default="eval",
+    help="The folder name for storing evaluation results",
+)
 flags.mark_flags_as_required(["workdir", "config", "mode"])
 
 
 def main(argv):
-  print(FLAGS.config)
-  if FLAGS.mode == "train" or FLAGS.mode == "train_regression":
-    # Create the working directory
-    Path(FLAGS.workdir).mkdir(parents=True, exist_ok=True)
-    # Set logger so that it outputs to both console and file
-    # Make logging work for both disk and Google Cloud Storage
-    gfile_stream = open(os.path.join(FLAGS.workdir, 'stdout.txt'), 'w')
-    handler = logging.StreamHandler(gfile_stream)
-    formatter = logging.Formatter('%(levelname)s - %(filename)s - %(asctime)s - %(message)s')
-    handler.setFormatter(formatter)
-    logger = logging.getLogger()
-    logger.addHandler(handler)
-    logger.setLevel('INFO')
-    # Run the training pipeline
-    if FLAGS.mode == "train":
-      run_lib.train(FLAGS.config, FLAGS.workdir)
-  elif FLAGS.mode == "eval":
-    # Run the evaluation pipeline
-    run_lib.evaluate(FLAGS.config, FLAGS.workdir, FLAGS.eval_folder)
-  else:
-    raise ValueError(f"Mode {FLAGS.mode} not recognized.")
+    print(FLAGS.config)
+    if FLAGS.mode == "train" or FLAGS.mode == "train_regression":
+        # Create the working directory
+        Path(FLAGS.workdir).mkdir(parents=True, exist_ok=True)
+        # Set logger so that it outputs to both console and file
+        # Make logging work for both disk and Google Cloud Storage
+        gfile_stream = open(os.path.join(FLAGS.workdir, 'stdout.txt'), 'w')
+        handler = logging.StreamHandler(gfile_stream)
+        formatter = logging.Formatter('%(levelname)s - %(filename)s - %(asctime)s - %(message)s')
+        handler.setFormatter(formatter)
+        logger = logging.getLogger()
+        logger.addHandler(handler)
+        logger.setLevel('INFO')
+        # Run the training pipeline
+        if FLAGS.mode == "train":
+            run_lib.train(FLAGS.config, FLAGS.workdir)
+
+    elif FLAGS.mode == "eval":
+        # Run the evaluation pipeline
+        run_lib.evaluate(FLAGS.config, FLAGS.workdir, FLAGS.eval_folder)
+
+    else:
+        raise ValueError(f"Mode {FLAGS.mode} not recognized.")
 
 
 if __name__ == "__main__":
