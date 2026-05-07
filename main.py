@@ -13,6 +13,7 @@
 # limitations under the License.
 
 """Training and evaluation"""
+
 import logging
 import os
 from pathlib import Path
@@ -56,13 +57,15 @@ def main(argv):
         Path(FLAGS.workdir).mkdir(parents=True, exist_ok=True)
         # Set logger so that it outputs to both console and file
         # Make logging work for both disk and Google Cloud Storage
-        gfile_stream = open(os.path.join(FLAGS.workdir, 'stdout.txt'), 'w')
+        gfile_stream = open(os.path.join(FLAGS.workdir, "stdout.txt"), "w")
         handler = logging.StreamHandler(gfile_stream)
-        formatter = logging.Formatter('%(levelname)s - %(filename)s - %(asctime)s - %(message)s')
+        formatter = logging.Formatter(
+            "%(levelname)s - %(filename)s - %(asctime)s - %(message)s"
+        )
         handler.setFormatter(formatter)
         logger = logging.getLogger()
         logger.addHandler(handler)
-        logger.setLevel('INFO')
+        logger.setLevel("INFO")
         # Run the training pipeline
         if FLAGS.mode == "train":
             run_lib.train(FLAGS.config, FLAGS.workdir)
@@ -76,4 +79,4 @@ def main(argv):
 
 
 if __name__ == "__main__":
-  app.run(main)
+    app.run(main)
