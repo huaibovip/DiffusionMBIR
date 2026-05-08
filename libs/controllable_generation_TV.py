@@ -344,13 +344,17 @@ def get_pc_radon_ADMM_TV_vol(
         if del_z.device != x.device:
             del_z = del_z.to(x.device)
             udel_z = del_z.to(x.device)
+
         for i in range(niter):
+            # 1. 共轭梯度求解主问题
             b_cg = ATy + rho * (_DzT(del_z) - _DzT(udel_z))
             x = CG(A_cg, b_cg, x, n_inner=1)
-
+            # 2. 软阈值化 (Z方向梯度)
             del_z = shrink(_Dz(x) + udel_z, lamb_1 / rho)
+            # 3. 对偶变量更新
             udel_z = _Dz(x) - del_z + udel_z
         x_mean = x
+
         return x, x_mean
 
     def get_update_fn(update_fn):
@@ -409,6 +413,7 @@ def get_pc_radon_ADMM_TV_vol(
                             clear(x_mean[0:1]),
                             cmap="gray",
                         )
+
             # Final step which coerces the data fidelity error term to be zero,
             # and thereby satisfying Ax = y
             if final_consistency:
