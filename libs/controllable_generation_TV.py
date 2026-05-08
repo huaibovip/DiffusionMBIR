@@ -358,7 +358,7 @@ def get_pc_radon_ADMM_TV_vol(
         return x, x_mean
 
     def get_update_fn(update_fn):
-        def radon_update_fn(model, data, x, t):
+        def radon_update_fn(model, x, t):
             with torch.no_grad():
                 vec_t = torch.ones(x.shape[0], device=x.device) * t
                 x, x_mean = update_fn(x, vec_t, model=model)
@@ -393,12 +393,8 @@ def get_pc_radon_ADMM_TV_vol(
                 # 2. Run PC step for each batch
                 x_agg = list()
                 for idx, x_batch_sing in enumerate(x_batch):
-                    x_batch_sing, _ = predictor_denoise_update_fn(
-                        model, data, x_batch_sing, t
-                    )
-                    x_batch_sing, _ = corrector_denoise_update_fn(
-                        model, data, x_batch_sing, t
-                    )
+                    x_batch_sing, _ = predictor_denoise_update_fn(model, x_batch_sing, t)
+                    x_batch_sing, _ = corrector_denoise_update_fn(model, x_batch_sing, t)
                     x_agg.append(x_batch_sing)
                 # 3. Aggregate to run ADMM TV
                 x = torch.cat(x_agg, dim=0)
@@ -529,7 +525,7 @@ def get_pc_radon_ADMM_TV_all_vol(
         return x, x_mean
 
     def get_update_fn(update_fn):
-        def radon_update_fn(model, data, x, t):
+        def radon_update_fn(model, x, t):
             with torch.no_grad():
                 vec_t = torch.ones(x.shape[0], device=x.device) * t
                 x, x_mean = update_fn(x, vec_t, model=model)
@@ -564,12 +560,8 @@ def get_pc_radon_ADMM_TV_all_vol(
                 # 2. Run PC step for each batch
                 x_agg = list()
                 for idx, x_batch_sing in enumerate(x_batch):
-                    x_batch_sing, _ = predictor_denoise_update_fn(
-                        model, data, x_batch_sing, t
-                    )
-                    x_batch_sing, _ = corrector_denoise_update_fn(
-                        model, data, x_batch_sing, t
-                    )
+                    x_batch_sing, _ = predictor_denoise_update_fn(model, x_batch_sing, t)
+                    x_batch_sing, _ = corrector_denoise_update_fn(model, x_batch_sing, t)
                     x_agg.append(x_batch_sing)
                 # 3. Aggregate to run ADMM TV
                 x = torch.cat(x_agg, dim=0)
