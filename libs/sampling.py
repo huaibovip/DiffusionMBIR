@@ -20,12 +20,10 @@ import time
 import torch
 import numpy as np
 import abc
-
-from models.utils import from_flattened_numpy, to_flattened_numpy, get_score_fn
 from scipy import integrate
 
-import sde_lib
-from models import utils as mutils
+from libs.models import sde as sde_lib
+from libs.models import utils as mutils
 
 _CORRECTORS = {}
 _PREDICTORS = {}
@@ -322,7 +320,7 @@ class LangevinCorrectorCS(Corrector):
           x: current estimate x_i
           t: current time step
           y: measurement in the image domain
-          discrete_sigmas: list of values of \sigma that are indexable with t
+          discrete_sigmas: list of values of sigma that are indexable with t
         """
         sde = self.sde
         score_fn = self.score_fn
@@ -561,7 +559,7 @@ def get_ode_sampler(
     """
 
     def denoise_update_fn(model, x):
-        score_fn = get_score_fn(sde, model, train=False, continuous=True)
+        score_fn = mutils.get_score_fn(sde, model, train=False, continuous=True)
         # Reverse diffusion predictor for denoising
         predictor_obj = ReverseDiffusionPredictor(sde, score_fn, probability_flow=False)
         vec_eps = torch.ones(x.shape[0], device=x.device) * eps
@@ -570,7 +568,7 @@ def get_ode_sampler(
 
     def drift_fn(model, x, t):
         """Get the drift function of the reverse-time SDE."""
-        score_fn = get_score_fn(sde, model, train=False, continuous=True)
+        score_fn = mutils.get_score_fn(sde, model, train=False, continuous=True)
         rsde = sde.reverse(score_fn, probability_flow=True)
         return rsde.sde(x, t)[
             0
@@ -594,16 +592,16 @@ def get_ode_sampler(
                 x = z
 
             def ode_func(t, x):
-                x = from_flattened_numpy(x, shape).to(device).type(torch.float32)
+                x = mutils.from_flattened_numpy(x, shape).to(device).type(torch.float32)
                 vec_t = torch.ones(shape[0], device=x.device) * t
                 drift = drift_fn(model, x, vec_t)
-                return to_flattened_numpy(drift)
+                return mutils.to_flattened_numpy(drift)
 
             # Black-box ODE solver for the probability flow ODE
             solution = integrate.solve_ivp(
                 ode_func,
                 (sde.T, eps),
-                to_flattened_numpy(x),
+                mutils.to_flattened_numpy(x),
                 rtol=rtol,
                 atol=atol,
                 method=method,

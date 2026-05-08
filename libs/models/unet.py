@@ -1,7 +1,8 @@
-from . import utils
 import torch
 from torch import nn
 from torch.nn import functional as F
+
+from . import utils
 
 
 class ConvBlock(nn.Module):
@@ -26,7 +27,6 @@ class ConvBlock(nn.Module):
             nn.Conv2d(in_chans, out_chans, kernel_size=3, stride=stride, padding=1),
             nn.GroupNorm(num_groups=8, num_channels=out_chans),
             nn.LeakyReLU(),
-
             nn.Conv2d(out_chans, out_chans, kernel_size=3, stride=1, padding=1),
             nn.GroupNorm(num_groups=8, num_channels=out_chans),
             nn.LeakyReLU(),
@@ -42,12 +42,14 @@ class ConvBlock(nn.Module):
         return self.layers(tensor)
 
     def __repr__(self):
-        return f'ConvBlock(in_chans={self.in_chans}, out_chans={self.out_chans})'
+        return f"ConvBlock(in_chans={self.in_chans}, out_chans={self.out_chans})"
 
 
-@utils.register_model(name='unet')
+@utils.register_model(name="unet")
 class Unet(nn.Module):
-    def __init__(self, in_chans=1, out_chans=1, chans=64, num_pool_layers=4, use_residual=True):
+    def __init__(
+        self, in_chans=1, out_chans=1, chans=64, num_pool_layers=4, use_residual=True
+    ):
         super().__init__()
         # self.config = config
         # self.in_chans = config.model.in_chans
@@ -63,7 +65,9 @@ class Unet(nn.Module):
         self.use_residual = use_residual
 
         ch = self.chans
-        self.down_sample_layers = nn.ModuleList([ConvBlock(self.in_chans, self.chans, stride=1)])
+        self.down_sample_layers = nn.ModuleList(
+            [ConvBlock(self.in_chans, self.chans, stride=1)]
+        )
         for i in range(self.num_pool_layers - 1):
             self.down_sample_layers += [ConvBlock(ch, ch * 2, stride=2)]
             ch *= 2
@@ -97,7 +101,9 @@ class Unet(nn.Module):
 
         # Apply up-sampling layers
         for layer in self.up_sample_layers:
-            output = F.interpolate(output, scale_factor=2, mode='bilinear', align_corners=False)
+            output = F.interpolate(
+                output, scale_factor=2, mode="bilinear", align_corners=False
+            )
             output = torch.cat((output, stack.pop()), dim=1)
             output = layer(output)
 

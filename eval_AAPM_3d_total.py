@@ -11,8 +11,8 @@ from libs.losses import get_optimizer
 from libs.models import ncsnpp
 from libs.models import utils as mutils
 from libs.models.ema import ExponentialMovingAverage
+from libs.models.sde import VESDE
 from libs.sampling import LangevinCorrector, ReverseDiffusionPredictor
-from libs.sde_lib import VESDE
 from libs.utils import (
     batchfy,
     clear,
@@ -104,7 +104,7 @@ if __name__ == "__main__":
     # read all data
     fname_list = os.listdir(root)
     fname_list = sorted(fname_list, key=lambda x: float(x.split(".")[0]))
-    print(fname_list)
+    # print(fname_list)
     all_img = []
 
     print("Loading all data")

@@ -1,3 +1,4 @@
+import importlib.util
 import os
 
 import torch
@@ -5,15 +6,21 @@ from torch.nn import functional as F
 from torch.autograd import Function
 from torch.utils.cpp_extension import load
 
-
 module_path = os.path.dirname(__file__)
-upfirdn2d_op = load(
-    "upfirdn2d",
-    sources=[
-        os.path.join(module_path, "upfirdn2d.cpp"),
-        os.path.join(module_path, "upfirdn2d_kernel.cu"),
-    ],
-)
+pyd_path = os.path.join(module_path, ".cache", "upfirdn2d.pyd")
+if os.path.exists(pyd_path):
+    spec = importlib.util.spec_from_file_location("upfirdn2d", pyd_path)
+    upfirdn2d_op = importlib.util.module_from_spec(spec)
+    assert spec.loader is not None
+    spec.loader.exec_module(upfirdn2d_op)
+else:
+    upfirdn2d_op = load(
+        "upfirdn2d",
+        sources=[
+            os.path.join(module_path, "upfirdn2d.cpp"),
+            os.path.join(module_path, "upfirdn2d_kernel.cu"),
+        ],
+    )
 
 
 class UpFirDn2dBackward(Function):
@@ -61,7 +68,7 @@ class UpFirDn2dBackward(Function):
 
     @staticmethod
     def backward(ctx, gradgrad_input):
-        kernel, = ctx.saved_tensors
+        (kernel,) = ctx.saved_tensors
 
         gradgrad_input = gradgrad_input.reshape(-1, ctx.in_size[2], ctx.in_size[3], 1)
 

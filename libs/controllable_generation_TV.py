@@ -6,13 +6,13 @@ from tqdm import tqdm
 
 # user-defined imports
 from physics.ct import *
-from sampling import (
+from libs.sampling import (
     NoneCorrector,
     NonePredictor,
     shared_corrector_update_fn,
     shared_predictor_update_fn,
 )
-from utils import (
+from libs.utils import (
     batchfy,
     clear,
     clear_color,

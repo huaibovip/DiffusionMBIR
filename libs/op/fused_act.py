@@ -1,3 +1,4 @@
+import importlib.util
 import os
 
 import torch
@@ -8,13 +9,20 @@ from torch.utils.cpp_extension import load
 
 
 module_path = os.path.dirname(__file__)
-fused = load(
-    "fused",
-    sources=[
-        os.path.join(module_path, "fused_bias_act.cpp"),
-        os.path.join(module_path, "fused_bias_act_kernel.cu"),
-    ],
-)
+fused_pyd_path = os.path.join(module_path, ".cache", "fused.pyd")
+if os.path.exists(fused_pyd_path):
+    spec = importlib.util.spec_from_file_location("fused", fused_pyd_path)
+    fused = importlib.util.module_from_spec(spec)
+    assert spec.loader is not None
+    spec.loader.exec_module(fused)
+else:
+    fused = load(
+        "fused",
+        sources=[
+            os.path.join(module_path, "fused_bias_act.cpp"),
+            os.path.join(module_path, "fused_bias_act_kernel.cu"),
+        ],
+    )
 
 
 class FusedLeakyReLUFunctionBackward(Function):

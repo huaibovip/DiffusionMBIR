@@ -18,7 +18,7 @@ import torch
 import numpy as np
 from scipy import integrate
 
-from models import utils as mutils
+from libs.models import utils as mutils
 
 
 def get_div_fn(fn):

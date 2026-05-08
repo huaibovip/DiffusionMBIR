@@ -17,10 +17,10 @@
 import torch
 import torch.optim as optim
 import numpy as np
-from models import utils as mutils
-from sde_lib import VESDE, VPSDE
-from utils import fft2, ifft2, get_mask
-import numpy as np
+
+from libs.models import utils as mutils
+from libs.models.sde import VESDE, VPSDE
+from libs.utils import fft2, ifft2, get_mask
 
 
 def get_optimizer(config, params):
